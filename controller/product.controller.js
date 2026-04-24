@@ -1,24 +1,44 @@
 const { Product } = require("../model/Product");
+const multer = require("multer");
+const path = require("path");
 
-exports.addProduct = async (req, res) => {
-  try {
-    const productObj = req.body;
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
 
-    const product = await Product.create(productObj);
-    if (!product) {
-      res.status(400).json({
-        message: `No product post`,
-      });
-    } else {
-      res.status(200).json({
+const upload = multer({ storage });
+exports.addProduct = [
+  upload.single("imageUrl"),
+  async (req, res) => {
+    try {
+      const productObj = {
+        imageUrl: req.file ? req.file.path : null,
+        name: req.body.name,
+        price: req.body.price,
+        category: req.body.category,
+        isInStock: req.body.isInStock,
+      };
+
+      const product = await Product.create(productObj);
+
+      return res.status(200).json({
         message: "product post successfully",
         data: product,
       });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Server error",
+        error: error.message,
+      });
     }
-  } catch (error) {
-    console.log(error);
-  }
-};
+  },
+];
 
 exports.getOneProduct = async (req, res) => {
   const id = req.params.id;
