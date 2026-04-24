@@ -1,4 +1,5 @@
 const { Product } = require("../model/Product");
+const { Category } = require("../model/Category");
 const multer = require("multer");
 const path = require("path");
 
@@ -16,6 +17,13 @@ exports.addProduct = [
   upload.single("imageUrl"),
   async (req, res) => {
     try {
+      const category = await Category.findById({ _id: req.body.category });
+      if (!category) {
+        return res.status(404).json({
+          message: `No category found`,
+          data: null,
+        });
+      }
       const productObj = {
         imageUrl: req.file ? req.file.path : null,
         name: req.body.name,
