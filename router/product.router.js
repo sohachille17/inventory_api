@@ -5,8 +5,13 @@ const router = express.Router();
 const {
   addProduct,
   getOneProduct,
+  getAllProducts,
+  updateSingleProduct,
 } = require("../controller/product.controller");
 
-router.route("/product").post(addProduct);
+router.route("/products").post(addProduct);
+router.route("/products").get(getAllProducts);
 router.route("/:id").get(getOneProduct);
+router.route("/:id").put(updateSingleProduct);
+
 module.exports = router;

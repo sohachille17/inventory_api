@@ -30,6 +30,7 @@ exports.addProduct = [
         price: req.body.price,
         category: req.body.category,
         isInStock: req.body.isInStock,
+        available: req.body.available,
       };
 
       const product = await Product.create(productObj);
@@ -70,3 +71,70 @@ exports.getOneProduct = async (req, res) => {
     }
   }
 };
+exports.getAllProducts = async (req, res) => {
+  try {
+    // check for all products with find
+
+    const product = await Product.find();
+    if (!product) {
+      return res.status(500).json({
+        message: `No product found`,
+      });
+    }
+
+    return res.status(200).json({
+      message: "products found",
+      data: product,
+    });
+  } catch (error) {
+    res.send(error);
+  }
+};
+exports.updateSingleProduct = [
+  upload.single("imageUrl"),
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+
+      const product = await Product.findById(id);
+      if (!product) {
+        return res.status(404).json({
+          message: `Product with id ${id} not found`,
+        });
+      }
+
+      const category = await Category.findById(req.body.category);
+      if (!category) {
+        return res.status(404).json({
+          message: "No category found",
+          data: null,
+        });
+      }
+
+      const productObj = {
+        imageUrl: req.file ? req.file.path : product.imageUrl,
+        name: req.body.name,
+        price: req.body.price,
+        category: category._id,
+        isInStock: req.body.isInStock,
+        available: req.body.available,
+      };
+
+      const updatedProduct = await Product.findByIdAndUpdate(
+        id,
+        { $set: productObj },
+        { new: true, runValidators: true },
+      );
+
+      return res.status(200).json({
+        message: "Product updated successfully",
+        data: updatedProduct,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  },
+];
