@@ -18,8 +18,9 @@ app.get("/", (req, res) => {
 
 app.use(express.json());
 app.use(morgan("tiny"));
-app.use("/api/v1/", productRoute);
-app.use("/api/v1/", categoryRoute);
+
+app.use("/api/v1/products", productRoute);
+app.use("/api/v1/category", categoryRoute);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>
